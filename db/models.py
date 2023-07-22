@@ -167,9 +167,9 @@ class Shirt_Size(Base):
     SIZE_ID: Mapped[int] = mapped_column(primary_key=True)
     SIZE_NAME: Mapped[str] = mapped_column(String(100))
 
-class Address(Base):
-    __tablename__='ADDRESS'
-    ADDRESS_ID: Mapped[int] = mapped_column(primary_key=True)
+class Area(Base):
+    __tablename__='AREA'
+    AREA_ID: Mapped[int] = mapped_column(primary_key=True)
     PROVINCE: Mapped[str] = mapped_column(String(50))
     DISTRICT: Mapped[str] = mapped_column(String(100))
     PRECINCT: Mapped[str] = mapped_column(String(100))

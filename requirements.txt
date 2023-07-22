@@ -6,3 +6,4 @@ bcrypt
 sqlalchemy_utils
 python-jose
 mysql-connector-python
+python-multipart
