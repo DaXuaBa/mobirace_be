@@ -23,10 +23,10 @@ class User(Base):
     STATUS: Mapped[str] = mapped_column(String(50))
     LINK_FB: Mapped[str] = mapped_column(String(50))
     HOME_NUMBER: Mapped[str] = mapped_column(String(50))
-    PRECINCT_ID: Mapped[str] = mapped_column(String(50))
+    ADDRESS_ID: Mapped[int] = mapped_column(Integer)
     SIZE_ID: Mapped[int] = mapped_column(Integer)
     ORG_ID: Mapped[str] = mapped_column(String(50))
-    ADDRESSES: Mapped[list["Address"]] = relationship(primaryjoin='foreign(ADDRESS.PRECINCT_ID) == PRECINCT_ID')
+    ADDRESSES: Mapped[list["Address"]] = relationship(primaryjoin='foreign(ADDRESS.ADDRESS_ID) == ADDRESS_ID')
     POSTS: Mapped[list["Post"]] = relationship(primaryjoin='foreign(POST.USER_ID) == USER_ID')
     SHIRT_SIZE: Mapped[list["Shirt_Size"]] = relationship(primaryjoin='foreign(SHIRT_SIZE.SIZE_ID) == SIZE_ID')
     ORGS: Mapped[list["Organzation"]] = relationship(primaryjoin='foreign(ORGANZATION.ORGANZATION_ID) == ORGANZATION_ID')
@@ -169,9 +169,10 @@ class Shirt_Size(Base):
 
 class Address(Base):
     __tablename__='ADDRESS'
-    PROVINCE_ID: Mapped[str] = mapped_column(String(50), primary_key=True)
-    DISTRICT_ID: Mapped[str] = mapped_column(String(100), primary_key=True)
-    PRECINCT_ID: Mapped[str] = mapped_column(String(100), primary_key=True)
+    ADDRESS_ID: Mapped[int] = mapped_column(primary_key=True)
+    PROVINCE: Mapped[str] = mapped_column(String(50))
+    DISTRICT: Mapped[str] = mapped_column(String(100))
+    PRECINCT: Mapped[str] = mapped_column(String(100))
     NAME: Mapped[str] = mapped_column(String(100))
     FULL_NAME: Mapped[str] = mapped_column(String(100))
     STATUS: Mapped[str] = mapped_column(String(10))
