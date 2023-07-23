@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form
 from sqlalchemy.orm.session import Session
 from db.database import get_db
-from db.db_sys_area import get_provinces_list, get_districts_list, get_wards_list
+from db.sys_area import get_provinces_list, get_districts_list, get_wards_list
 
 router = APIRouter(
     tags=['area'],
