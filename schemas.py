@@ -74,3 +74,21 @@ class ORG_DISPLAY(BaseModel):
     ORG_NAME:str
     class Configs():
         orm_mode = True
+
+class Statistic(BaseModel):
+    member : int
+    total_distance : float
+    total_club : int
+    total_race : int
+    class Config:
+        orm_mode = True 
+
+class Home(BaseModel):
+    homepage : List[Homepage]
+    community : List[Community]
+    rankuser : List[Rankuser]
+    rankclub : List[Rankclub]
+    slogan : List[Slogan]
+    statistic: Statistic
+    class Config:
+        orm_mode = True
