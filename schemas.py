@@ -7,22 +7,27 @@ from typing import List, Optional
 class UserBase(BaseModel):
     username: str
     password: str
-    fullname: str  # Sử dụng snake_case thay vì camelCase
+    fullname: str  
     email: str
-    tel_number: str  # Sử dụng snake_case thay vì camelCase
+    telNumber: Optional[str]=None  
     birthday: str
     gender: str
-    address: str
-    province: str
-    district: str
-    ward: str
-    org_id: str
-    child_org_id: str  # Sử dụng snake_case thay vì camelCase
+    address: Optional[str]=None
+    province: Optional[str]=None
+    district: Optional[str]=None
+    ward: Optional[str]=None
+    org_id: Optional[str]=None
+    child_org_id: Optional[str]=None
     size_id: str
-    link_fb: str  # Sử dụng snake_case thay vì camelCase
+    link_fb: Optional[str]=None  
+
+class User_Change_Password(BaseModel):
+    old_password: str
+    new_password: str
 
 # Tạo một Pydantic model để định nghĩa cấu trúc của request body
 class RefreshTokenRequest(BaseModel):
     refresh_Token: str
+
     
 

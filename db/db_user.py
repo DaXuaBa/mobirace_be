@@ -1,5 +1,6 @@
 from sqlalchemy.orm.session import Session
-from schemas import UserBase
+from sqlalchemy import text
+from schemas import UserBase, User_Change_Password
 from db.models import User
 from fastapi import HTTPException, status, Query
 from utils.hash import Hash
@@ -12,28 +13,16 @@ def create_user(request: UserBase, db: Session):
     except:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Cannot connect to database.')
     try:
-        user = db.query(User).filter(User.USER_NAME == request.username).first()
+        user = get_user_by_username(request.username,db)
         email = db.query(User).filter(User.EMAIL == request.email).first()
-        if user:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-            detail=f'username đã tồn tại')
-        elif email:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-            detail=f'email đã tồn tại')
-        new_user = User(
-            USER_NAME = request.username,
-            PASSWORD = Hash.bcrypt(request.password),
-            FULL_NAME = request.fullname,
-            EMAIL = request.email,        
-            EL_NUM = request.tel_number,
-            DATE_OF_BIRTH = '2002-07-19',
-            GENDER = request.gender,
-            SIZE_ID = int(request.size_id),
-            LINK_FB = request.link_fb
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        if user or email:
+            if user:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='username đã tồn tại')
+            else:
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail='email đã tồn tại')
+        
+        cursor.execute(text("CALL register_user(:username, :password, :fullname, :email, :telNumber, :birthday, :gender, :address, :province, :district, :ward, :org_id, :child_org_id, :size, :link_fb)"),
+                         **user.dict())
         response = {
             "status": 200,
             "detail": "Thao tác thành công!"
@@ -44,7 +33,29 @@ def create_user(request: UserBase, db: Session):
     finally:
         cursor.close()
         connection.close()
+def change_password(user: User_Change_Password, db: Session, current_user: User):
+    try:
+        authenticate_user(current_user,user.old_password)
+        current_user.PASSWORD = Hash.bcrypt(user.new_password)
+        
+        db.commit()
+        response = {
+            "status": 200,
+            "detail": "Đổi mật khẩu thành công"
+        }
+        return response
+    except :
+        db.rollback()
+        raise HTTPException(status_code=401, detail="Wrong password")
 
+
+def authenticate_user(user: User, password: str):
+    if not Hash.verify(user.PASSWORD, password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Wrong password",
+        )
+    
 def get_user_by_username(username: str, db: Session): 
   try:
     user = db.query(User).filter(User.USER_NAME == username).first()

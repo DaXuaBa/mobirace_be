@@ -34,7 +34,7 @@ def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
     result = get_func_by_roleID(user_role, db)
     
     access_token = oauth2.create_access_token(data={'sub': user.USER_NAME, 'role_id': user_role.ROLE_ID })
-    refresh_token = oauth2.create_refresh_token(data={'sub': user.USER_NAME})
+    refresh_token = oauth2.create_refresh_token(data={'sub': user.USER_NAME, 'role_id': user_role.ROLE_ID})
 
     return {
     'accessToken': access_token,
@@ -66,8 +66,8 @@ def refresh_token(request_body: RefreshTokenRequest , db: Session = Depends(get_
     user_role = get_role_by_userID(user, db)
     result = get_func_by_roleID(user_role, db)
 
-    access_token = oauth2.create_access_token(data={'sub': user.USER_NAME})
-    refresh_token = oauth2.create_refresh_token(data={'sub': user.USER_NAME})
+    access_token = oauth2.create_access_token(data={'sub': user.USER_NAME, 'role_id': user_role.ROLE_ID})
+    refresh_token = oauth2.create_refresh_token(data={'sub': user.USER_NAME, 'role_id': user_role.ROLE_ID})
 
     return {
     'accessToken': access_token,
