@@ -1,116 +1,126 @@
 from sqlalchemy import Column
-from sqlalchemy.sql.sqltypes import Integer, String, Boolean,DateTime,Float,Double
+from sqlalchemy.sql.sqltypes import Integer, String,DateTime,Float,Double
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy import Table
 from sqlalchemy.dialects.mysql import LONGTEXT
 from db.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Table
 
 class User(Base):
-    __tablename__ = 'USER'
-    USER_ID: Mapped[int] = mapped_column(primary_key=True)
-    USER_NAME: Mapped[str] = mapped_column(String(50))
-    PASSWORD: Mapped[str] = mapped_column(String(50))
-    CREATED_AT: Mapped[DateTime] = mapped_column(DateTime)
-    FULL_NAME: Mapped[str] = mapped_column(String(100))
-    AVATAR_PATH: Mapped[str] = mapped_column(String(100))
-    DATE_OF_BIRTH: Mapped[DateTime] = mapped_column(DateTime)
-    GENDER: Mapped[str] = mapped_column(String(50))
-    TEL_NUM: Mapped[str] = mapped_column(String(10))
-    TOTAL_DISTANCE: Mapped[Double] = mapped_column(Double)
-    RANKING: Mapped[int] = mapped_column(Integer)
-    STATUS: Mapped[str] = mapped_column(String(50))
-    LINK_FB: Mapped[str] = mapped_column(String(50))
-    HOME_NUMBER: Mapped[str] = mapped_column(String(50))
-    ADDRESS_ID: Mapped[int] = mapped_column(Integer)
-    SIZE_ID: Mapped[int] = mapped_column(Integer)
-    ORG_ID: Mapped[str] = mapped_column(String(50))
-    ADDRESSES: Mapped[list["Address"]] = relationship(primaryjoin='foreign(ADDRESS.ADDRESS_ID) == ADDRESS_ID')
-    POSTS: Mapped[list["Post"]] = relationship(primaryjoin='foreign(POST.USER_ID) == USER_ID')
-    SHIRT_SIZE: Mapped[list["Shirt_Size"]] = relationship(primaryjoin='foreign(SHIRT_SIZE.SIZE_ID) == SIZE_ID')
-    ORGS: Mapped[list["Organzation"]] = relationship(primaryjoin='foreign(ORGANZATION.ORGANZATION_ID) == ORGANZATION_ID')
+    __tablename__='USER'
+    USER_ID= Column(Integer, primary_key=True)
+    USER_NAME= Column(String(50)) 
+    PASSWORD= Column(String(50)) 
+    EMAIL= Column(String(50))
+    CREATED_AT= Column(DateTime) 
+    FULL_NAME= Column(String(100)) 
+    AVATAR_PATH= Column(String(500)) 
+    DATE_OF_BIRTH=  Column(DateTime) 
+    GENDER= Column(String(50)) 
+    TEL_NUM= Column(String(10)) 
+    TOTAL_DISTANCE= Column(Double) 
+    RANKING= Column(Integer) 
+    STATUS= Column(String(50)) 
+    LINK_FB=Column(String(50)) 
+    HOME_NUMBER= Column(String(50)) 
+    AREA_ID= Column(Integer, ForeignKey('AREA.AREA_ID'))
+    SIZE_ID = Column(Integer, ForeignKey('SHIRT_SIZE.SIZE_ID'))
+    ORG_ID= Column(String(50), ForeignKey('ORGANIZATION.ORG_ID'))
+    sizes = relationship("Shirt_Size", back_populates="users")  
+    roles = relationship("Role", secondary='USER_ROLE',back_populates="users")
+    functions = relationship("Function", back_populates="users")
+    runs = relationship("Run", back_populates="users")
+    organizations = relationship("Organization", back_populates="users")
+    clubs = relationship("Club", secondary='USER_CLUB', back_populates="users")
+    events = relationship("Event", secondary='USER_EVENT', back_populates="users")
+    posts = relationship("Post", back_populates="users")
+    areas = relationship("Area", back_populates="users") 
 
 class Role(Base):
     __tablename__='ROLE'
-    ROLE_ID: Mapped[int] = mapped_column(primary_key=True)
-    ROLE_NAME: Mapped[str] = mapped_column(String(50))
-    STATUS: Mapped[str] = mapped_column(String(50))
-    USER_ID: Mapped[int] = mapped_column(Integer)
-    CREATED_AT: Mapped[DateTime] = mapped_column(DateTime)
+    ROLE_ID=  Column(Integer, primary_key=True)
+    ROLE_NAME= Column(String(50)) 
+    STATUS= Column(String(50)) 
+    CREATED_AT= Column(DateTime) 
+    users = relationship("User", secondary='USER_ROLE',back_populates="roles")
+    functions = relationship("Function", secondary='ROLE_FUNCTION', back_populates="roles")
 
-UserRole = Table(
-    "USER_ROLE",
+User_Role = Table(
+    'USER_ROLE',
     Base.metadata,
-    Column("USER_ID", Integer, primary_key=True),
-    Column("ROLE_ID", Integer, primary_key=True)
+    Column('USER_ID', Integer, ForeignKey('USER.USER_ID'), primary_key=True),
+    Column('ROLE_ID', Integer, ForeignKey('ROLE.ROLE_ID'), primary_key=True)
 ) 
 
 class Function(Base):
     __tablename__='FUNCTION'
-    FUNC_ID: Mapped[int] = mapped_column(primary_key=True)
-    FUNC_NAME: Mapped[str] = mapped_column(String(50))
-    STATUS: Mapped[str] = mapped_column(String(50))
-    FUNC_PARENT_ID: Mapped[int] = mapped_column(Integer)
-    API_PATH: Mapped[str] = mapped_column(String(100))
-    USER_ID: Mapped[int] = mapped_column(Integer) 
-    CREATED_AT: Mapped[DateTime] = mapped_column(DateTime)
+    FUNC_ID= Column(Integer, primary_key=True)
+    USER_ID= Column(Integer, ForeignKey('USER.USER_ID'))
+    FUNC_PARENT_ID= Column(Integer, ForeignKey('FUNCTION.FUNC_ID'))
+    FUNC_NAME= Column(String(50)) 
+    STATUS= Column(String(50))  
+    API_PATH= Column(String(500)) 
+    CREATED_AT= Column(DateTime) 
+    roles = relationship("Role", secondary='ROLE_FUNCTION', back_populates="functions")
+    users = relationship("User", back_populates="functions")
+    func_children = relationship("Function", backref="func_parent", remote_side=[FUNC_ID])
 
-RoleFunction = Table(
-    "ROLE_FUNCTION",
+Role_Function = Table(
+    'ROLE_FUNCTION',
     Base.metadata,
-    Column("FUNC_ID", Integer, primary_key=True),
-    Column("ROLE_ID", Integer, primary_key=True)
+    Column("FUNC_ID", Integer, ForeignKey('ROLE.ROLE_ID'), primary_key=True),
+    Column("ROLE_ID", Integer, ForeignKey('FUNCTION.FUNC_ID'), primary_key=True)
 )
 
 class Run(Base):
     __tablename__='RUN'
-    RUN_ID: Mapped[int] = mapped_column(primary_key=True)
-    USER_ID: Mapped[int] = mapped_column(Integer)
-    STRAVA_ID: Mapped[int] = mapped_column(Integer)
-    NAME: Mapped[str] = mapped_column(String(50))
-    DISTANCE: Mapped[float] = mapped_column(Float)
-    DURATION: Mapped[float] = mapped_column(Float)  
-    PACE: Mapped[float] = mapped_column(Float)
-    CALORI: Mapped[float] = mapped_column(Float)
-    CREATED_AT: Mapped[DateTime] = mapped_column(DateTime)
-    STATUS: Mapped[str] = mapped_column(String(50))
-    TYPE: Mapped[str] = mapped_column(String(50)) 
-    HEART_RATE: Mapped[Double] = mapped_column(Double)
-    STEP_RATE: Mapped[Double] = mapped_column(Double)
-    RUNS: Mapped[list["Run"]] = relationship(primaryjoin='foreign(RUN.USER_ID) == USER_ID')
+    RUN_ID= Column(Integer, primary_key=True)
+    USER_ID= Column(Integer, ForeignKey('USER.USER_ID'))
+    STRAVA_ID= Column(Integer)
+    NAME= Column(String(50)) 
+    DISTANCE= Column(Float)
+    DURATION= Column(Float)
+    PACE= Column(Float)
+    CALORI= Column(Float)
+    CREATED_AT= Column(DateTime) 
+    STATUS=Column(String(50)) 
+    TYPE= Column(String(50)) 
+    HEART_RATE= Column(Double)
+    STEP_RATE=Column(Double)
+    users = relationship("User", back_populates="runs")
 
 class Club(Base):
     __tablename__='CLUB'
-    CLUB_ID: Mapped[int] = mapped_column(primary_key=True)
-    CLUB_NAME: Mapped[str] = mapped_column(String(100))
-    DESCRIPTION: Mapped[str] = mapped_column(String(200))
-    CREATE_AT: Mapped[DateTime] = mapped_column(DateTime)
-    CLUB_TOTAL_DISTANCE: Mapped[Double] = mapped_column(Double)
-    CLUB_RANKING: Mapped[int] = mapped_column(Integer)
-    STATUS: Mapped[int] = mapped_column(Integer)
-    USER_ID: Mapped[int] = mapped_column(Integer)
-    ADMIN: Mapped[int] = mapped_column(Integer)
-    MIN_PACE: Mapped[Double] = mapped_column(Double)
-    MAX_PACE: Mapped[Double] = mapped_column(Double)
-    PICTUTE_PATH: Mapped[str] = mapped_column(String(100))
+    CLUB_ID= Column(Integer, primary_key=True)
+    CLUB_NAME= Column(String(100)) 
+    DESCRIPTION= Column(String(200)) 
+    CREATE_AT= Column(DateTime) 
+    CLUB_TOTAL_DISTANCE= Column(Double) 
+    CLUB_RANKING= Column(Integer) 
+    STATUS= Column(Integer)  
+    ADMIN= Column(Integer) 
+    MIN_PACE= Column(Double) 
+    MAX_PACE= Column(Double) 
+    PICTUTE_PATH= Column(String(500)) 
+    users = relationship("User", secondary='USER_CLUB', back_populates="clubs")
+    events = relationship("Event", secondary='CLUB_EVENT', back_populates="clubs")
 
-UserRole = Table(
-    "USER_CLUB",
+User_Club = Table(
+    'USER_CLUB',
     Base.metadata,
-    Column("USER_ID", Integer, primary_key=True),
-    Column("CLUB_ID", Integer, primary_key=True),
+    Column("USER_ID", Integer, ForeignKey('USER.USER_ID'), primary_key=True),
+    Column("CLUB_ID", Integer, ForeignKey('CLUB.CLUB_ID'), primary_key=True),
     Column("JOIN_DATE", DateTime),
     Column("TOTAL_DISTANCE", Double),
     Column("RANKING", Integer),
     Column("PACE", Double)
 )
 
-ClubEvent = Table(
-    "CLUB_EVENT",
+Club_Event = Table(
+    'CLUB_EVENT',
     Base.metadata,
-    Column("CLUB_ID", Integer, primary_key=True),
-    Column("EVENT_ID", Integer, primary_key=True),
+    Column("CLUB_ID", Integer, ForeignKey('CLUB.CLUB_ID'), primary_key=True),
+    Column("EVENT_ID", Integer, ForeignKey('EVENT.EVENT_ID'), primary_key=True),
     Column("JOIN_DATE", DateTime),
     Column("TOTAL_DISTANCE", Double),
     Column("RANKING", Integer),
@@ -119,60 +129,64 @@ ClubEvent = Table(
 
 class Event(Base):
     __tablename__='EVENT'
-    EVENT_ID: Mapped[int] = mapped_column(primary_key=True)
-    USER_ID: Mapped[int] = mapped_column(Integer)
-    DESCRIPTION: Mapped[str] = mapped_column(String(100))
-    TITLE: Mapped[str] = mapped_column(String(100))
-    CREATE_AT: Mapped[DateTime] = mapped_column(DateTime)
-    PICTURE_PATH: Mapped[str] = mapped_column(String(100))
-    START_DATE: Mapped[DateTime] = mapped_column(DateTime)
-    END_DATE: Mapped[DateTime] = mapped_column(DateTime)
-    STATUS: Mapped[str] = mapped_column(String(100))
-    RUNNING_CATEGORY: Mapped[str] = mapped_column(String(100))
-    NUM_OF_ATTENDEE: Mapped[int] = mapped_column(Integer)
-    NUM_OF_RUNNER: Mapped[int] = mapped_column(Integer)
-    TOTAL_DISTANCE: Mapped[Double] = mapped_column(Double) 
-    CONTENT: Mapped[LONGTEXT] = mapped_column(LONGTEXT)
-    MIN_PACE: Mapped[Double] = mapped_column(Double)
-    MAX_PACE: Mapped[Double] = mapped_column(Double)
+    EVENT_ID= Column(Integer, primary_key=True)
+    DESCRIPTION= Column(String(100)) 
+    TITLE= Column(String(100)) 
+    CREATE_AT= Column(DateTime)
+    PICTURE_PATH= Column(String(500)) 
+    START_DATE= Column(DateTime)
+    END_DATE= Column(DateTime)
+    STATUS= Column(String(100)) 
+    RUNNING_CATEGORY= Column(String(100)) 
+    NUM_OF_ATTENDEE=Column(Integer)
+    NUM_OF_RUNNER= Column(Integer)
+    TOTAL_DISTANCE= Column(Double)
+    CONTENT= Column(LONGTEXT)
+    MAX_PACE=Column(Double)
+    users = relationship("User", secondary='USER_EVENT', back_populates="events")
+    clubs = relationship("Club", secondary='CLUB_EVENT', back_populates="events")
 
 UserEvent = Table(
-    "USER_EVENT",
+    'USER_EVENT',
     Base.metadata,
-    Column("USER_ID", Integer, primary_key=True),
-    Column("EVENT_ID", Integer, primary_key=True),
+    Column("USER_ID", Integer, ForeignKey('USER.USER_ID'),primary_key=True),
+    Column("EVENT_ID", Integer, ForeignKey('EVENT.EVENT_ID'), primary_key=True),
     Column("JOIN_DATE", DateTime),
     Column("TOTAL_DISTANCE", Double),
     Column("RANKING", Integer),
     Column("PACE", Double)
 )
 
+class Organization(Base):
+    __tablename__ = 'ORGANIZATION'
+    ORG_ID = Column(String(50), primary_key=True)
+    ORG_NAME = Column(String(100))   
+    ORG_PARENT_ID = Column(String(100), ForeignKey('ORGANIZATION.ORG_ID'))   
+    org_children = relationship("Organization", backref="org_parent", remote_side=[ORG_ID])
+    users=relationship("User",back_populates="organizations")
+
 class Post(Base):
     __tablename__='POST'
-    POST_ID: Mapped[int] = mapped_column(primary_key=True)
-    TITLE: Mapped[str] = mapped_column(String(100))
-    USER_ID: Mapped[int] = mapped_column(Integer)
-    CREATED_AT: Mapped[DateTime] = mapped_column(DateTime)
-    HTML_CONTENT: Mapped[LONGTEXT] = mapped_column(LONGTEXT)
-
-class Organzation(Base):
-    __tablename__='ORGANZATION'
-    ORG_ID: Mapped[str] = mapped_column(String(50),primary_key=True)
-    ORG_NAME: Mapped[str] = mapped_column(String(100))
-    ORG_PARENT_ID: Mapped[str] = mapped_column(String(50))
-    ORGS: Mapped[list["Organzation"]] = relationship(primaryjoin='ORGANZATION.ORG_ID == ORG_PARENT_ID')
+    POST_ID= Column(Integer, primary_key=True)
+    TITLE=Column(String(100)) 
+    USER_ID = Column(Integer, ForeignKey('USER.USER_ID'))
+    CREATED_AT= Column(DateTime)
+    HTML_CONTENT=Column(LONGTEXT)
+    users = relationship("User", back_populates="posts")
 
 class Shirt_Size(Base):
     __tablename__='SHIRT_SIZE'
-    SIZE_ID: Mapped[int] = mapped_column(primary_key=True)
-    SIZE_NAME: Mapped[str] = mapped_column(String(100))
+    SIZE_ID= Column(Integer, primary_key=True)
+    SIZE_NAME= Column(String(100))
+    users = relationship("User", back_populates="sizes") 
 
 class Area(Base):
     __tablename__='AREA'
-    AREA_ID: Mapped[int] = mapped_column(primary_key=True)
-    PROVINCE: Mapped[str] = mapped_column(String(50))
-    DISTRICT: Mapped[str] = mapped_column(String(100))
-    PRECINCT: Mapped[str] = mapped_column(String(100))
-    NAME: Mapped[str] = mapped_column(String(100))
-    FULL_NAME: Mapped[str] = mapped_column(String(100))
-    STATUS: Mapped[str] = mapped_column(String(10))
+    AREA_ID= Column(Integer, primary_key=True)
+    PROVINCE= Column(String(50)) 
+    DISTRICT=Column(String(100)) 
+    PRECINCT= Column(String(100)) 
+    NAME= Column(String(100)) 
+    FULL_NAME= Column(String(100)) 
+    STATUS= Column(String(10)) 
+    users = relationship("User", back_populates="areas") 

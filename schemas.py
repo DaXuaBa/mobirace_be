@@ -65,3 +65,12 @@ class Slogan(BaseModel):
     class Config:
         orm_mode = True 
 
+class ORG_BASE(BaseModel):
+    ORG_ID:str
+    ORG_NAME:str
+    ORG_PARENT:str
+    
+class ORG_DISPLAY(BaseModel):
+    ORG_NAME:str
+    class Configs():
+        orm_mode = True

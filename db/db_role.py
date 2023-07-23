@@ -3,7 +3,7 @@ from schemas import UserBase
 from db.models import User
 from fastapi import HTTPException, status, Query
 from utils.hash import Hash
-from db.models import User, User_Role, Function, Role_Function,Role
+from db.models import User, User_Role, Function,Role
 
 
 

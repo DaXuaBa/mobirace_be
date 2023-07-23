@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
 from router.sys import area
-from router import user, listsize, homepage, community, rankuser, rankclub, statistic, slogan
+from router import user, listsize, homepage, community, rankuser, rankclub, statistic, slogan,org
 from auth import authentication
 
 app = FastAPI()
@@ -21,6 +21,7 @@ for router in list_router:
 
 app.include_router(user.router)
 app.include_router(authentication.router)
+app.include_router(org.router)
 origins = ["*"]
 
 app.add_middleware(
