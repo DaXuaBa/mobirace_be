@@ -2,8 +2,6 @@ from pydantic import BaseModel, Field
 from datetime import datetime
 from typing import List, Optional
 
-
-
 class UserBase(BaseModel):
     username: str
     password: str
@@ -29,5 +27,41 @@ class User_Change_Password(BaseModel):
 class RefreshTokenRequest(BaseModel):
     refresh_Token: str
 
+class SizeBase(BaseModel):
+    SIZE_NAME: str 
+    class Config:
+        orm_mode = True
     
+class Homepage(BaseModel):
+    TITLE : str
+    PICTURE_PATH : str
+    class Config:
+        orm_mode = True
+
+class Community(BaseModel):
+    CLUB_NAME : str
+    PICTUTE_PATH : str
+    class Config:
+        orm_mode = True
+
+class Rankuser(BaseModel):
+    RANKING : int
+    FULL_NAME : str
+    AVATAR_PATH : str
+    TOTAL_DISTANCE : str
+    class Config:
+        orm_mode = True
+
+class Rankclub(BaseModel):
+    CLUB_RANKING : int
+    CLUB_NAME : str
+    PICTUTE_PATH : str
+    CLUB_TOTAL_DISTANCE : str
+    class Config:
+        orm_mode = True
+
+class Slogan(BaseModel):
+    HTML_CONTENT: str 
+    class Config:
+        orm_mode = True 
 
